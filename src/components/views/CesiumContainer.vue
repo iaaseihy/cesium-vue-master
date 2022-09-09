@@ -26,12 +26,13 @@ import positiveY from '../../assets/img/SkyBox/06h+00.jpg'
 import negativeY from '../../assets/img/SkyBox/18h+00.jpg'
 import positiveZ from '../../assets/img/SkyBox/06h+90.jpg'
 import negativeZ from '../../assets/img/SkyBox/06h-90.jpg'
-var viewer
+var viewer, scene
 export default {
   name: 'CesiumContainer',
   data() {
     return {
-      subdomains: 1
+      subdomains: 1,
+      coordiatesArr: []
     }
   },
   mounted() {
@@ -189,7 +190,9 @@ export default {
       const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas)
       this.$store.state.cesiumDrawHandler = handler
       window.cesiumViewer = viewer
-
+      scene = viewer.scene
+      // 加载100000个模型
+      this.addGlbCollection()
       viewer.camera.moveEnd.addEventListener(this.getCurrentExtent)
     },
     // 获取当前相机视角内的图幅范围
@@ -246,6 +249,53 @@ export default {
         console.log('当前地图层级=======', level)
       }
       console.log('地图变化监听事件', extent, (extent.xmin + extent.xmax) / 2, (extent.ymax + extent.ymin) / 2)
+    },
+    /* 批量处理gltf或glb格式模型 */
+    getModelPostInstances(data) {
+      var modelPosts = []
+
+      for (var y = 0; y < data.length; ++y) {
+        var longitude = data[y].longitude
+        var latitude = data[y].latitude
+        var height = data[y].height
+
+        var position = Cesium.Cartesian3.fromDegrees(longitude, latitude, height)
+
+        var heading = Math.random()
+        var pitch = Math.random()
+        var roll = Math.random()
+        // var scale = ((Math.random() + 1.0) / 4.0) * 100
+        var scale = 10000
+        var modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(position, new Cesium.HeadingPitchRoll(heading, pitch, roll))
+
+        Cesium.Matrix4.multiplyByUniformScale(modelMatrix, scale, modelMatrix)
+
+        modelPosts.push({
+          modelMatrix: modelMatrix
+        })
+      }
+
+      return modelPosts
+    },
+    /* 加载gltf或glb格式模型 */
+    addGlbCollection() {
+      for (let i = 0; i < 100000; i++) {
+        var longitude = 108.841552734374 + Math.random() * (150 - 124.25) // [124.25,150)
+        var latitude = 27.8779283336792 + Math.random() * (60 - 28)
+        var height = 100 + Math.random() * (5000 - 100)
+        var ccord = { longitude, latitude, height }
+        this.coordiatesArr.push(ccord)
+      }
+      console.log(this.coordiatesArr)
+      var modelInstances = this.getModelPostInstances(this.coordiatesArr)
+      console.log(modelInstances)
+      var instanceCollection = scene.primitives.add(
+        new Cesium.ModelInstanceCollection({
+          url: '/static/gltf/Cesium_Man.glb',
+
+          instances: modelInstances
+        })
+      )
     }
   }
 }
