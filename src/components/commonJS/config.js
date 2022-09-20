@@ -6,7 +6,8 @@ import { Cesium3DTileStyle } from 'cesium'
  * 影像配置路径
  */
 //本地全球影像
-export const LOCAL_IMG_URL = 'http://localhost:6060/Data/BASE_DATA/bijiangquTileset/{z}/{x}/{y}.png'
+// export const LOCAL_IMG_URL = 'http://localhost:6060/Data/BASE_DATA/bijiangquTileset/{z}/{x}/{y}.png'
+export const LOCAL_IMG_URL = 'http://localhost:6060/Data/BASE_DATA/yuhuatai19/{z}/{x}/{y}.png'
 //在线谷歌影像
 export const GOOGLE_IMG_URL = 'http://mt1.google.cn/vt/lyrs=s&hl=zh-CN&x={x}&y={y}&z={z}&s=Gali'
 //在线天地图矢量影像

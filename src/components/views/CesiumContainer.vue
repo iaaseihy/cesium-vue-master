@@ -43,7 +43,7 @@ export default {
   methods: {
     initViewer() {
       // Cesium.Ion.defaultAccessToken =
-      //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyOWI4NmU3MS0wNjMwLTRkYzgtODZmOC0wY2IxYzRiYjM3MjciLCJpZCI6MjA5NjIsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1Nzg2MjM2MDB9.1N0686jkepigCJiLU3bDFgg5Ti61J943lKpJoqDR2bA'
+      //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI1MmE5ZjMxNi1hMTc3LTQzYzUtYWFjMi1jMTcxZWRmYjM4MzIiLCJpZCI6MjYzODMsImlhdCI6MTY2MzMyMTQ1OH0.iQ6jrVZHBcE411OFm16kB2xBTNLe6tAg625X_5bMNyM'
       // 天地图影像
       var imageryProvider1 = new Cesium.WebMapTileServiceImageryProvider({
         url: 'http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=你的token',
@@ -110,6 +110,25 @@ export default {
         new BaiduImageryProvider({
           url: 'http://online{s}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&styles=pl&scaler=1&p=1',
           layer: 'tdtAnnoLayer',
+          style: 'dark',
+          format: 'image/jpeg',
+          maximumLevel: 18,
+          subdomains: this.subdomains,
+          tileMatrixSetID: 'GoogleMapsCompatible',
+          crs: 'WGS84', // 坐标系: WGS84 、BD09 、GCJ02，仅百度、高德有效
+          tilingScheme: null
+        })
+      )
+      // get或set图层透明度，范围是0-1
+      baiduImageryLayer.alpha = 0.6
+
+      // get或set图层亮度，小于1图层更暗，大于1更亮
+      baiduImageryLayer.brightness = 1.0
+      // 添加高德地图并使用插件纠偏
+      var gaodeImageryLayer = layers.addImageryProvider(
+        new AmapImageryProvider({
+          url: 'https://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}',
+          layer: 'tdtAnnoLayer',
           style: 'default',
           format: 'image/jpeg',
           maximumLevel: 18,
@@ -120,10 +139,13 @@ export default {
         })
       )
       // get或set图层透明度，范围是0-1
-      baiduImageryLayer.alpha = 1
+      gaodeImageryLayer.alpha = 0.3
 
       // get或set图层亮度，小于1图层更暗，大于1更亮
-      baiduImageryLayer.brightness = 2.0
+      gaodeImageryLayer.brightness = 1.0
+      // 修改影像图层颜色，变为暗色
+      console.log(layers)
+      this.modifyMap(viewer)
       // 百度
       // viewer.imageryLayers.addImageryProvider(
       //   new BaiduImageryProvider({
@@ -191,9 +213,43 @@ export default {
       this.$store.state.cesiumDrawHandler = handler
       window.cesiumViewer = viewer
       scene = viewer.scene
-      // 加载100000个模型
-      this.addGlbCollection()
+      // // 加载100000个模型
+      // this.addGlbCollection()
       viewer.camera.moveEnd.addEventListener(this.getCurrentExtent)
+    },
+    /* Cesium修改地图颜色代码(暗色电子地图) */
+    modifyMap(viewer) {
+      // 获取地图影像图层
+      const baseLayer = viewer.imageryLayers.get(0)
+      // 设置两个变量，用来判断是否进行颜色的翻转和过滤
+      const options = {
+        invertColor: true,
+        filterRGB: [0, 50, 100]
+      }
+      // 更改地图着色器代码
+      const baseFragShader = viewer.scene.globe._surfaceShaderSet.baseFragmentShaderSource.sources
+      for (let i = 0; i < baseFragShader.length; i++) {
+        // console.log(baseFragShader[i])
+        // console.log('------')
+
+        const strS = 'color = czm_saturation(color, textureSaturation);\n#endif\n'
+        let strT = 'color = czm_saturation(color, textureSaturation);\n#endif\n'
+        if (options.invertColor) {
+          strT += `
+      color.r = 1.0 - color.r;
+      color.g = 1.0 - color.g;
+      color.b = 1.0 - color.b;
+      `
+        }
+        if (options.filterRGB.length > 0) {
+          strT += `
+      color.r = color.r * ${options.filterRGB[0]}.0/255.0;
+      color.g = color.g * ${options.filterRGB[1]}.0/255.0;
+      color.b = color.b * ${options.filterRGB[2]}.0/255.0;
+      `
+        }
+        baseFragShader[i] = baseFragShader[i].replace(strS, strT)
+      }
     },
     // 获取当前相机视角内的图幅范围
     getCurrentExtent() {
