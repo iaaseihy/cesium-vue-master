@@ -12,6 +12,11 @@ const routes = [
     component: AnimationGroup
   },
   {
+    path: '/home',
+    name: 'Home',
+    component: () => import('../views/Home/index.vue')
+  },
+  {
     path: '/CesiumContainer',
     name: 'CesiumContainer',
     component: () => import('../components/views/CesiumContainer.vue')// 路由懒加载，直接在这里引入了CesiumContainer并且赋值给了component;

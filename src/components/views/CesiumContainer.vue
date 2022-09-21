@@ -145,7 +145,7 @@ export default {
       gaodeImageryLayer.brightness = 1.0
       // 修改影像图层颜色，变为暗色
       console.log(layers)
-      this.modifyMap(viewer)
+      // this.modifyMap(viewer)
       // 百度
       // viewer.imageryLayers.addImageryProvider(
       //   new BaiduImageryProvider({
