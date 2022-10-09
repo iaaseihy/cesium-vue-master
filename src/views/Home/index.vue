@@ -75,6 +75,7 @@
 </template>
 
 <script>
+import Vue from 'vue';
 import { Scene, PointLayer, Popup } from '@antv/l7'
 import { GaodeMap } from '@antv/l7-maps'
 import UserDataPreview from './components/UserDataPreview.vue'

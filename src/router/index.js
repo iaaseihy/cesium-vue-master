@@ -1,15 +1,25 @@
 
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHashHistory } from 'vue-router'
 // import CesiumContainer from "../views/CesiumContainer.vue";
-import CesiumContainer from "../components/views/CesiumContainer.vue"
+import CesiumContainer from '../components/views/CesiumContainer.vue'
 import CesiumRadarScan from '../components/views/CesiumRadarScan.vue'
 import AnimationGroup from '../components/views/misc_animation_groups'
 import AnimationBinding from '../components/views/AnimationBinding'
 const routes = [
   {
-    path: "/",
-    name: "animationgroup",
+    path: '/',
+    name: 'Login',
+    component: () => import('../views/Home/login.vue')
+  },
+  {
+    path: '/animationgroup',
+    name: 'Animationgroup',
     component: AnimationGroup
+  },
+  {
+    path: '/register',
+    component: () => import('../views/Home/register/index.vue'),
+    hidden: true
   },
   {
     path: '/home',
@@ -37,11 +47,11 @@ const routes = [
     name: 'AnimationBinding',
     component: AnimationBinding
   }
-];
+]
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes
-});
+})
 
-export default router;
+export default router

@@ -87,8 +87,8 @@ export default {
       })
       viewer = new Cesium.Viewer('cesiumContainer', {
         terrainExaggeration: 0.95,
-        imageryProvider: imageryProvider,
-        // imageryProvider: baiduImageryProvider,
+        // imageryProvider: imageryProvider,
+        imageryProvider: baiduImageryProvider,
         // terrainProvider: terrainProvider,
         baseLayerPicker: false,
         fullscreenButton: false,
