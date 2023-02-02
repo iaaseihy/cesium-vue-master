@@ -110,9 +110,9 @@ export default {
     this.showLoading()
     this.setElementHeight()
     window.addEventListener('resize', this.setElementHeight)
-    this.$once('hook:beforeDestroy', () => {
-      window.removeEventListener('resize', this.setElementHeight)
-    })
+    // this.$once('hook:beforeDestroy', () => {
+    //   window.removeEventListener('resize', this.setElementHeight)
+    // })
   },
   methods: {
     // 用户地图
@@ -368,14 +368,14 @@ export default {
       } else if (type === 'device') {
         deviceTimer = this.initInterval(targetList, 8000)
       }
-      this.$once('hook:beforeDestroy', () => {
-        clearInterval(cityTimer)
-        clearInterval(userTimer)
-        clearInterval(deviceTimer)
-        userTimer = null
-        cityTimer = null
-        deviceTimer = null
-      })
+      // this.$once('hook:beforeDestroy', () => {
+      //   clearInterval(cityTimer)
+      //   clearInterval(userTimer)
+      //   clearInterval(deviceTimer)
+      //   userTimer = null
+      //   cityTimer = null
+      //   deviceTimer = null
+      // })
     }
   }
 }

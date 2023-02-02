@@ -126,11 +126,11 @@
       // 获取全用户数据
       setTimeout(() => {
         // this.initUserMap()
-        this.initUserDataPreview()
+        // this.initUserDataPreview()
         this.initUserRanking()
-        this.initUserStates()
-        this.initUserPortrait()
-        this.initUserChannelCanvas()
+        // this.initUserStates()
+        // this.initUserPortrait()
+        // this.initUserChannelCanvas()
       }, 700)
     },
     methods: {
