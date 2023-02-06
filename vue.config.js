@@ -10,15 +10,15 @@ module.exports = {
   lintOnSave: false, // 是否开启eslint
   devServer: {
     open: true,
-//     proxy: {
-//       '/api': {
-//         target: 'http://localhost:8080',
-//         changeOrigin: true,
-//         pathRewrite: {
-//           '/api': ''
-//         }
-//       }
-//     }
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        pathRewrite: {
+          '/api': ''
+        }
+      }
+    }
   },
   configureWebpack: (config) => {
     let plugins = []

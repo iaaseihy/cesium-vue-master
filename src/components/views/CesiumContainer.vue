@@ -1,5 +1,7 @@
 <template>
-  <div id="cesiumContainer" class="fullSize"></div>
+  <div id="cesiumContainer" class="fullSize">
+      <contour-line :test="this.testArr" :viewer="this.cesiumViewer" ref="contourLine"></contour-line>
+  </div>
 </template>
 
 <script>
@@ -20,6 +22,7 @@ import 'cesium/Build/Cesium/Widgets/bucket.css'
 // } from 'cesium'
 import { LOCAL_IMG_URL, LOCAL_TERRAIN_URL, DAYANTA3DTILES, BAIMO3DTILES, GAODE_IMG_URL } from '../commonJS/config'
 import { BaiduImageryProvider, AmapImageryProvider } from '../commonJS/BaiduImageryProvider'
+import { updateMaterial } from './ContourLine.js'
 import positiveX from '../../assets/img/SkyBox/00h+00.jpg'
 import negativeX from '../../assets/img/SkyBox/12h+00.jpg'
 import positiveY from '../../assets/img/SkyBox/06h+00.jpg'
@@ -27,13 +30,17 @@ import negativeY from '../../assets/img/SkyBox/18h+00.jpg'
 import positiveZ from '../../assets/img/SkyBox/06h+90.jpg'
 import negativeZ from '../../assets/img/SkyBox/06h-90.jpg'
 import MeasureTool from '../../components/measureTool/MeasureTool.js'
+import ContourLine from '../../../src/components/views/ContourLine.vue'
 var viewer, scene, tileset1, tilesetBaimo
 export default {
   name: 'CesiumContainer',
+  components: { ContourLine },
   data() {
     return {
       subdomains: 1,
-      coordiatesArr: []
+      coordiatesArr: [],
+      cesiumViewer: null,
+      testArr: [1, 2, 3]
     }
   },
   mounted() {
@@ -47,8 +54,8 @@ export default {
   },
   methods: {
     initViewer() {
-      // Cesium.Ion.defaultAccessToken =
-      //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjMmEyNjk5Ni02YjM4LTQ1NWUtOTk3Ny1mMzg5ZDFkZGEwYjYiLCJpZCI6MjYzODMsImlhdCI6MTY2NTczNDAwNX0.E8DSOKZagTy0leqyheZVzpjwrh3AactCSgQF3v22T2Q'
+      Cesium.Ion.defaultAccessToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjMmEyNjk5Ni02YjM4LTQ1NWUtOTk3Ny1mMzg5ZDFkZGEwYjYiLCJpZCI6MjYzODMsImlhdCI6MTY2NTczNDAwNX0.E8DSOKZagTy0leqyheZVzpjwrh3AactCSgQF3v22T2Q'
       // 天地图影像
       var imageryProvider1 = new Cesium.WebMapTileServiceImageryProvider({
         url: 'http://t0.tianditu.com/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default&format=tiles&tk=你的token',
@@ -83,6 +90,10 @@ export default {
         requestWaterMask: true, // 请求水波纹效果
         requestVertexNormals: true
       })
+      var terrainProviderGoogle = Cesium.createWorldTerrain({
+        requestVertexNormals: true,
+        requestWaterMask: true
+      })
       // 百度
       var baiduImageryProvider = new BaiduImageryProvider({
         url: 'http://online{s}.map.bdimg.com/onlinelabel/?qt=tile&x={x}&y={y}&z={z}&styles=pl&scaler=1&p=1',
@@ -99,8 +110,9 @@ export default {
         terrainExaggeration: 0.95,
         imageryProvider: imageryProvider,
         //   imageryProvider: baiduImageryProvider,
-        terrainProvider: terrainProvider,
+        //   terrainProvider: terrainProvider,
         // terrainProvider: terrainProviderMars,
+        terrainProvider: terrainProviderGoogle,
         baseLayerPicker: false,
         fullscreenButton: false,
         geocoder: false,
@@ -155,7 +167,7 @@ export default {
       // get或set图层亮度，小于1图层更暗，大于1更亮
       gaodeImageryLayer.brightness = 1.0
       // 修改影像图层颜色，变为暗色
-      console.log(layers)
+      console.log(layers, 'terrainLayers: ', viewer.scene.terrainProvider._layers)
       // this.modifyMap(viewer)
       // 百度
       // viewer.imageryLayers.addImageryProvider(
@@ -227,16 +239,68 @@ export default {
       // 显示帧率
       viewer.scene.debugShowFramesPerSecond = true
 
+      // 添加3d tiles调试面板
+      viewer.extend(Cesium.viewerCesium3DTilesInspectorMixin)
+      var inspectorViewModel = viewer.cesium3DTilesInspector.viewModel
+      console.log('inspectorViewModel: ', inspectorViewModel)
+
       const handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas)
       this.$store.state.cesiumDrawHandler = handler
       window.cesiumViewer = viewer
+      this.cesiumViewer = viewer
       scene = viewer.scene
       // // 加载100000个模型
       // this.addGlbCollection()
       // 加载大雁塔倾斜摄影
       this.set3Dtitle3()
-      this.BAOMOEdit()
+      this.BAIMOEdit()
+      this.setContourRef()
+      // this.setContour()
       viewer.camera.moveEnd.addEventListener(this.getCurrentExtent)
+    },
+    setContourRef() {
+      this.$refs.contourLine.updateMaterial(viewer)
+    },
+    setContour() {
+      // 开启光照
+      viewer.scene.globe.enableLighting = true
+      // 定义等高线初始值
+      // const minHeight = -414.0 // approximate dead sea elevation
+      // const maxHeight = 8777.0 // approximate everest elevation
+      // const contourColor = Cesium.Color.RED.clone()
+      // const contourUniforms = {}
+      // const shadingUniforms = {}
+
+      // // 修改材质
+      // var hasContour = viewModel.enableContour
+      // var selectedShading = viewModel.selectedShading
+      // var globe = viewer.scene.globe
+      // var material
+      // if (hasContour) {
+      //   if (selectedShading === 'elevation') {
+      //     material = getElevationContourMaterial()
+      //     shadingUniforms = material.materials.elevationRampMaterial.uniforms
+      //     shadingUniforms.minimumHeight = minHeight
+      //     shadingUniforms.maximumHeight = maxHeight
+      //     contourUniforms = material.materials.contourMaterial.uniforms
+      //   } else {
+      //     material = Cesium.Material.fromType('ElevationContour')
+      //     contourUniforms = material.uniforms
+      //   }
+      //   contourUniforms.width = viewModel.contourWidth
+      //   contourUniforms.spacing = viewModel.contourSpacing
+      //   contourUniforms.color = contourColor
+      // } else if (selectedShading === 'elevation') {
+      //   material = Cesium.Material.fromType('ElevationRamp')
+      //   shadingUniforms = material.uniforms
+      //   shadingUniforms.minimumHeight = minHeight
+      //   shadingUniforms.maximumHeight = maxHeight
+      // }
+      // if (selectedShading !== 'none') {
+      //   shadingUniforms.image = getColorRamp(selectedShading)
+      // }
+      // globe.material = material
+      updateMaterial(viewer)
     },
     // 加速器园区
     set3Dtitle3 () {
@@ -291,12 +355,13 @@ export default {
       }).otherwise(function (error) {
         console.log(error)
       })
+
       // viewer.flyTo(tileset1)
       tileset1.allTilesLoaded.addEventListener(function () {
         console.log('模型已经全部加载完成')
       })
     },
-    BAOMOEdit() {
+    BAIMOEdit() {
       // 非异步加载3DTitle，并设置渐变光环
       // var tilesetBaimo = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({
       //   url: BAIMO3DTILES
@@ -502,5 +567,9 @@ export default {
 #cesiumContainer {
   width: 100%;
   height: 100%;
+}
+::v-deep(.cesium-viewer-cesium3DTilesInspectorContainer){
+      right: 400px;
+      top: 200px;
 }
 </style>
