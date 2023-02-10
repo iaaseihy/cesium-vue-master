@@ -3,8 +3,8 @@
  * @version: v1.0
  * @Author: caochaoqiang
  * @Date: 2023-02-03 11:43:18
- * @LastEditors: caochaoqiang
- * @LastEditTime: 2023-02-06 13:47:12
+ * @LastEditors: iaaseihy 774249302@qq.com
+ * @LastEditTime: 2023-02-10 14:25:42
 -->
 <template>
       <el-row>
@@ -58,6 +58,9 @@
       <div class="contourColor">
             <el-button @click="changeColor">颜色</el-button>
       </div>
+      <div class="visibility">
+            <el-button @click="visibilityTwoPoints(viewer)">两点通视分析</el-button>
+      </div>
       </div>
       <div>
         线宽 <input style="width: 125px; float: left; width: 100px;"
@@ -76,6 +79,7 @@
 
 <script>
 import * as Cesium from 'cesium'
+import Visibility from '../commonJS/viewShedTwoPoints'
 export default {
   name: 'ContourLine',
   props: ['test', 'viewer'],
@@ -215,6 +219,13 @@ export default {
     isContour() {
       console.log(this.viewModel.enableContour)
       this.viewModel.enableContour = !this.viewModel.enableContour
+    },
+    /**
+   * 两点可视域分析
+   * @param {viewer} viewer 视图
+   */
+    visibilityTwoPoints(viewer) {
+      const pointVisible = new Visibility(viewer)
     }
   }
 }

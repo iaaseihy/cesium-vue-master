@@ -31,6 +31,9 @@ import positiveZ from '../../assets/img/SkyBox/06h+90.jpg'
 import negativeZ from '../../assets/img/SkyBox/06h-90.jpg'
 import MeasureTool from '../../components/measureTool/MeasureTool.js'
 import ContourLine from '../../../src/components/views/ContourLine.vue'
+import WallDiffuseMaterialProperty from '../commonJS/WallDiffuseMaterialProperty'
+import WallLinkCustomMaterialProperty from '../commonJS/WallLinkCustomMaterialProperty'
+import Visibility from '../commonJS/viewShedTwoPoints'
 var viewer, scene, tileset1, tilesetBaimo
 export default {
   name: 'CesiumContainer',
@@ -40,7 +43,22 @@ export default {
       subdomains: 1,
       coordiatesArr: [],
       cesiumViewer: null,
-      testArr: [1, 2, 3]
+      testArr: [1, 2, 3],
+      wallPosition1: Cesium.Cartesian3.fromDegreesArrayHeights([
+        104.07263175401185, 30.647622150198725, 1500.0,
+        104.06369117158526, 30.648834374000277, 1500.0,
+        104.06437182811021, 30.62274533905387, 1500.0,
+        104.07463538167119, 30.62285687644371, 1500.0,
+        104.07263175401185, 30.647622150198725, 1500.0
+
+      ]),
+      wallPosition2: Cesium.Cartesian3.fromDegreesArrayHeights([
+        104.09816110606057, 30.659821965447698, 200.0,
+        104.1120972824757, 30.65330300319938, 200.0,
+        104.10758419863926, 30.64592470850288, 200.0,
+        104.09351691196979, 30.652434826507452, 200.0,
+        104.09816110606057, 30.659821965447698, 200.0
+      ])
     }
   },
   mounted() {
@@ -253,9 +271,19 @@ export default {
       // this.addGlbCollection()
       // 加载大雁塔倾斜摄影
       this.set3Dtitle3()
+      // 添加白膜
       this.BAIMOEdit()
-      this.setContourRef()
+      // 添加等高线
+      // this.setContourRef()
       // this.setContour()
+
+      // 立体墙
+      this.wllUp()
+      this.wallCustom()
+
+      // 开启两点间可视域分析
+      // this.visibilityTwoPoints(viewer)
+
       viewer.camera.moveEnd.addEventListener(this.getCurrentExtent)
     },
     setContourRef() {
@@ -402,12 +430,12 @@ export default {
      varying vec3 v_positionEC;
      void main(void){
        vec4 position = czm_inverseModelView * vec4(v_positionEC,1); // 位置
-       float glowRange = 100.0; // 光环的移动范围(高度)
+       float glowRange = 120.78; // 光环的移动范围(高度)
        gl_FragColor = vec4(0.0, 0.3, 0.8, 0.8); // 颜色
        
        // 小于20米的低楼都不再变暗
-       if(position.y > 20.0) {
-         gl_FragColor *= vec4(vec3(position.y / 20.0), 0.8); // 渐变
+       if(position.y > 31.0) {
+         gl_FragColor *= vec4(vec3(position.y / 31.0), 0.8); // 渐变
        }
        
        // 动态光环
@@ -422,6 +450,154 @@ export default {
         }
       })
       viewer.flyTo(tilesetBaimo)
+    },
+    // 立体向上泛光效果
+    wllUp() {
+      var positions = Cesium.Cartesian3.fromDegreesArrayHeights([
+        121.0,
+        31.25,
+        200000.0,
+        120.78,
+        31.25,
+        200000.0,
+        120.78,
+        31.0,
+        200000.0,
+        121.0,
+        31.0,
+        200000.0,
+        121.0,
+        31.25,
+        200000.0
+      ])
+      let num = 20
+      let alp = 1
+      const speed = 0.006
+      const color = Cesium.Color.RED
+      // 绘制墙体
+      viewer.entities.add({
+        name: '立体墙效果',
+        wall: {
+          positions: this.wallPosition1,
+          // 设置高度
+          maximumHeights: new Array(this.wallPosition1.length).fill(700),
+          minimunHeights: new Array(this.wallPosition1.length).fill(200),
+          // 扩散墙材质
+          material: new WallDiffuseMaterialProperty({
+            // color: new Cesium.Color(1.0, 1.0, 0.0, 1.0)
+            color: new Cesium.CallbackProperty(function () {
+              if ((num % 2) === 0) {
+                alp -= speed
+              } else {
+                alp += speed
+              }
+
+              if (alp <= 0.1) {
+                num++
+              } else if (alp >= 1) {
+                num++
+              }
+              return color.withAlpha(alp)
+            }, false)
+          })
+          //     material: new Cesium.ImageMaterialProperty({
+          //       image: '/static/texture/fence.png',
+          //       transparent: true,
+          //       color: new Cesium.CallbackProperty(function () {
+          //         if ((num % 2) === 0) {
+          //           alp -= speed
+          //         } else {
+          //           alp += speed
+          //         }
+
+          //         if (alp <= 0.1) {
+          //           num++
+          //         } else if (alp >= 1) {
+          //           num++
+          //         }
+          //         return color.withAlpha(alp)
+          //       }, false)
+          //     })
+        }
+      })
+      viewer.zoomTo(viewer.entities)
+    },
+    wallCustom() {
+      const material = new WallLinkCustomMaterialProperty({
+        image: '/static/texture/color3.png',
+        freely: 'vertical',
+        direction: '+',
+        count: 5,
+        color: Cesium.Color.BLUE,
+        duration: 2000
+      })
+      const material2 = new WallLinkCustomMaterialProperty({
+        image: '/static/texture/test1.png',
+        freely: 'cross',
+        direction: '+',
+        count: 0.0,
+        color: Cesium.Color.BLUE,
+        duration: 2000
+      })
+      // var positions1 = Cesium.Cartesian3.fromDegreesArrayHeights([
+      //   104.07263175401185, 30.647622150198725, 1500.0,
+      //   104.06369117158526, 30.648834374000277, 1500.0,
+      //   104.06437182811021, 30.62274533905387, 1500.0,
+      //   104.07463538167119, 30.62285687644371, 1500.0,
+      //   104.07263175401185, 30.647622150198725, 1500.0
+
+      // ])
+      // var position2 = Cesium.Cartesian3.fromDegreesArrayHeights([
+      //   104.09816110606057, 30.659821965447698, 200.0,
+      //   104.1120972824757, 30.65330300319938, 200.0,
+      //   104.10758419863926, 30.64592470850288, 200.0,
+      //   104.09351691196979, 30.652434826507452, 200.0,
+      //   104.09816110606057, 30.659821965447698, 200.0
+      // ])
+      const entity1 = viewer.entities.add({
+        name: 'aaaaa',
+        wall: {
+          //     positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+          //       104.07263175401185, 30.647622150198725, 1500.0,
+          //       104.06369117158526, 30.648834374000277, 1500.0,
+          //       104.06437182811021, 30.62274533905387, 1500.0,
+          //       104.07463538167119, 30.62285687644371, 1500.0,
+          //       104.07263175401185, 30.647622150198725, 1500.0
+
+          //     ]),
+          positions: this.wallPosition1,
+          disableDepthTestDistance: 50000,
+          // 设置高度
+          maximumHeights: new Array(this.wallPosition1.length).fill(700),
+          minimunHeights: new Array(this.wallPosition1.length).fill(200),
+          material: material2
+        }
+      })
+      const entity2 = viewer.entities.add({
+        name: 'aaaaaa',
+        wall: {
+          //     positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+          //       104.09816110606057, 30.659821965447698, 200.0,
+          //       104.1120972824757, 30.65330300319938, 200.0,
+          //       104.10758419863926, 30.64592470850288, 200.0,
+          //       104.09351691196979, 30.652434826507452, 200.0,
+          //       104.09816110606057, 30.659821965447698, 200.0
+          //     ]),
+          positions: this.wallPosition2,
+          // 设置高度
+          maximumHeights: new Array(this.wallPosition2.length).fill(700),
+          minimunHeights: new Array(this.wallPosition2.length).fill(200),
+          material: material
+        }
+      })
+      viewer.zoomTo(viewer.entities)
+    },
+    /**
+   * 初始化上下文
+   * @param {viewer} viewer 视图
+   */
+    visibilityTwoPoints(viewer) {
+      const pointVisible = new Visibility(viewer)
     },
     /* Cesium修改地图颜色代码(暗色电子地图) */
     modifyMap(viewer) {
