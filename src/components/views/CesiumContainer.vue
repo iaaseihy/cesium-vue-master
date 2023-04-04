@@ -4,7 +4,7 @@
  * @Author: CaoChaoqiang
  * @Date: 2023-02-03 10:20:33
  * @LastEditors: CaoChaoqiang
- * @LastEditTime: 2023-03-30 17:30:15
+ * @LastEditTime: 2023-04-04 14:14:52
 -->
 <template>
   <div id="cesiumContainer" class="fullSize">
@@ -260,119 +260,119 @@ export default {
       // window.addEventListener('mouseup', this.mouseUp, false)
 
       // // 分屏联动
-      // // 用于联动的viewer
-      // viewerEye = new Cesium.Viewer('cesiumContainerR', {
-      //   imageryProvider: ArcGisMap,
+      // 用于联动的viewer
+      viewerEye = new Cesium.Viewer('cesiumContainerR', {
+        imageryProvider: ArcGisMap,
 
-      //   creditContainer: 'creditContainerR',
+        creditContainer: 'creditContainerR',
 
-      //   scene3DOnly: true,
+        scene3DOnly: true,
 
-      //   baseLayerPicker: false,
+        baseLayerPicker: false,
 
-      //   infoBox: false,
+        infoBox: false,
 
-      //   selectionIndicator: false,
+        selectionIndicator: false,
 
-      //   geocoder: false, // 是否显示地名查找控件
+        geocoder: false, // 是否显示地名查找控件
 
-      //   navigationHelpButton: false, // 是否显示帮助信息控件
+        navigationHelpButton: false, // 是否显示帮助信息控件
 
-      //   homeButton: false,
+        homeButton: false,
 
-      //   timeline: false,
+        timeline: false,
 
-      //   animation: false
-      // })
-      // viewerEye._cesiumWidget._creditContainer.style.display = 'none'
-      // // // 第一种
-      // // var control = viewerEye.scene.screenSpaceCameraController
+        animation: false
+      })
+      viewerEye._cesiumWidget._creditContainer.style.display = 'none'
+      // // 第一种
+      // var control = viewerEye.scene.screenSpaceCameraController
 
-      // // control.enableRotate = false
+      // control.enableRotate = false
 
-      // // control.enableTranslate = false
+      // control.enableTranslate = false
 
-      // // control.enableZoom = false
+      // control.enableZoom = false
 
-      // // control.enableTilt = false
+      // control.enableTilt = false
 
-      // // control.enableLook = false
+      // control.enableLook = false
 
-      // // var syncViewer = function () {
-      // //   viewerEye.camera.flyTo({
-      // //     destination: viewer.camera.position,
+      // var syncViewer = function () {
+      //   viewerEye.camera.flyTo({
+      //     destination: viewer.camera.position,
 
-      // //     orientation: {
-      // //       heading: viewer.camera.heading,
+      //     orientation: {
+      //       heading: viewer.camera.heading,
 
-      // //       pitch: viewer.camera.pitch,
+      //       pitch: viewer.camera.pitch,
 
-      // //       roll: viewer.camera.roll
-      // //     },
+      //       roll: viewer.camera.roll
+      //     },
 
-      // //     duration: 0.0
-      // //   })
-      // // }
+      //     duration: 0.0
+      //   })
+      // }
 
-      // // viewer.camera.changed.addEventListener(syncViewer)
+      // viewer.camera.changed.addEventListener(syncViewer)
 
-      // // viewer.scene.preRender.addEventListener(syncViewer)
+      // viewer.scene.preRender.addEventListener(syncViewer)
 
       // // 第二种
-      // var sceneL = viewer.scene
-      // var sceneR = viewerEye.scene
+      var sceneL = viewer.scene
+      var sceneR = viewerEye.scene
 
-      // var handlerL = new Cesium.ScreenSpaceEventHandler(sceneL.canvas)
-      // var ellipsoidL = sceneL.globe.ellipsoid
-      // var handlerR = new Cesium.ScreenSpaceEventHandler(sceneR.canvas)
-      // var ellipsoidR = sceneR.globe.ellipsoid
+      var handlerL = new Cesium.ScreenSpaceEventHandler(sceneL.canvas)
+      var ellipsoidL = sceneL.globe.ellipsoid
+      var handlerR = new Cesium.ScreenSpaceEventHandler(sceneR.canvas)
+      var ellipsoidR = sceneR.globe.ellipsoid
 
-      // var isLeftTrigger = false
-      // var isRightTrigger = false
+      var isLeftTrigger = false
+      var isRightTrigger = false
 
-      // handlerL.setInputAction(function (movement) {
-      //   isLeftTrigger = true
-      //   isRightTrigger = false
-      // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+      handlerL.setInputAction(function (movement) {
+        isLeftTrigger = true
+        isRightTrigger = false
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
 
-      // handlerR.setInputAction(function (movement) {
-      //   isLeftTrigger = false
-      //   isRightTrigger = true
-      // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+      handlerR.setInputAction(function (movement) {
+        isLeftTrigger = false
+        isRightTrigger = true
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
 
-      // var syncViewerL = function () {
-      //   if (isLeftTrigger) {
-      //     viewerEye.camera.flyTo({
-      //       destination: viewer.camera.position,
-      //       orientation: {
-      //         heading: viewer.camera.heading,
-      //         pitch: viewer.camera.pitch,
-      //         roll: viewer.camera.roll
-      //       },
-      //       duration: 0.0
-      //     })
-      //   }
-      // }
+      var syncViewerL = function () {
+        if (isLeftTrigger) {
+          viewerEye.camera.flyTo({
+            destination: viewer.camera.position,
+            orientation: {
+              heading: viewer.camera.heading,
+              pitch: viewer.camera.pitch,
+              roll: viewer.camera.roll
+            },
+            duration: 0.0
+          })
+        }
+      }
 
-      // viewer.camera.changed.addEventListener(syncViewerL)
-      // viewer.scene.preRender.addEventListener(syncViewerL)
+      viewer.camera.changed.addEventListener(syncViewerL)
+      viewer.scene.preRender.addEventListener(syncViewerL)
 
-      // var syncViewerR = function () {
-      //   if (isRightTrigger) {
-      //     viewer.camera.flyTo({
-      //       destination: viewerEye.camera.position,
-      //       orientation: {
-      //         heading: viewerEye.camera.heading,
-      //         pitch: viewerEye.camera.pitch,
-      //         roll: viewerEye.camera.roll
-      //       },
-      //       duration: 0.0
-      //     })
-      //   }
-      // }
+      var syncViewerR = function () {
+        if (isRightTrigger) {
+          viewer.camera.flyTo({
+            destination: viewerEye.camera.position,
+            orientation: {
+              heading: viewerEye.camera.heading,
+              pitch: viewerEye.camera.pitch,
+              roll: viewerEye.camera.roll
+            },
+            duration: 0.0
+          })
+        }
+      }
 
-      // viewer.camera.changed.addEventListener(syncViewerR)
-      // viewer.scene.preRender.addEventListener(syncViewerR)
+      viewer.camera.changed.addEventListener(syncViewerR)
+      viewer.scene.preRender.addEventListener(syncViewerR)
       // 分屏至此结束
 
       viewer.scene.globe.showGroundAtmosphere = false
@@ -417,7 +417,7 @@ export default {
       // // 加载100000个模型
       // this.addGlbCollection()
       // 加载大雁塔倾斜摄影
-      this.set3Dtitle3()
+      // this.set3Dtitle3()
       // 添加白膜
       // this.BAIMOEdit()
       // 添加等高线
