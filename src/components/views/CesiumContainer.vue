@@ -1,11 +1,25 @@
+<!--
+ * @Descripttion:
+ * @version: v1.0
+ * @Author: CaoChaoqiang
+ * @Date: 2023-02-03 10:20:33
+ * @LastEditors: CaoChaoqiang
+ * @LastEditTime: 2023-03-30 17:30:15
+-->
 <template>
   <div id="cesiumContainer" class="fullSize">
-      <contour-line :test="this.testArr" :viewer="this.cesiumViewer" ref="contourLine"></contour-line>
+    <contour-line :test="this.testArr" :viewer="this.cesiumViewer" :earth="this.Earth" :modelUrl="this.modelUrl" ref="contourLine"></contour-line>
+  <div id="slider" className="slider"></div>
+        <div id="creditContainer"></div>
+  </div>
+  <div id="cesiumContainerR" className="cesiumContainerRight">
+      <div id="creditContainerR" ></div>
   </div>
 </template>
 
 <script>
 import * as Cesium from 'cesium'
+// import Cesium103 from '../../../public/static/cesium1.103/CesiumUnminified/Cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import 'cesium/Build/Cesium/Widgets/bucket.css'
 // import {
@@ -34,7 +48,10 @@ import ContourLine from '../../../src/components/views/ContourLine.vue'
 import WallDiffuseMaterialProperty from '../commonJS/WallDiffuseMaterialProperty'
 import WallLinkCustomMaterialProperty from '../commonJS/WallLinkCustomMaterialProperty'
 import Visibility from '../commonJS/viewShedTwoPoints'
-var viewer, scene, tileset1, tilesetBaimo
+import { CV } from '../commonJS/CV.js'
+import '../../constants/data/config'
+// import gltfModel from '../../../public/static/gltf/Cesium_Man.glb'
+var viewer, viewerEye, scene, tileset1, tilesetBaimo
 export default {
   name: 'CesiumContainer',
   components: { ContourLine },
@@ -43,20 +60,15 @@ export default {
       subdomains: 1,
       coordiatesArr: [],
       cesiumViewer: null,
+      Earth: null,
+      modelUrl: '@/static/gltf/Cesium_Man.glb',
       testArr: [1, 2, 3],
       wallPosition1: Cesium.Cartesian3.fromDegreesArrayHeights([
-        104.07263175401185, 30.647622150198725, 1500.0,
-        104.06369117158526, 30.648834374000277, 1500.0,
-        104.06437182811021, 30.62274533905387, 1500.0,
-        104.07463538167119, 30.62285687644371, 1500.0,
+        104.07263175401185, 30.647622150198725, 1500.0, 104.06369117158526, 30.648834374000277, 1500.0, 104.06437182811021, 30.62274533905387, 1500.0, 104.07463538167119, 30.62285687644371, 1500.0,
         104.07263175401185, 30.647622150198725, 1500.0
-
       ]),
       wallPosition2: Cesium.Cartesian3.fromDegreesArrayHeights([
-        104.09816110606057, 30.659821965447698, 200.0,
-        104.1120972824757, 30.65330300319938, 200.0,
-        104.10758419863926, 30.64592470850288, 200.0,
-        104.09351691196979, 30.652434826507452, 200.0,
+        104.09816110606057, 30.659821965447698, 200.0, 104.1120972824757, 30.65330300319938, 200.0, 104.10758419863926, 30.64592470850288, 200.0, 104.09351691196979, 30.652434826507452, 200.0,
         104.09816110606057, 30.659821965447698, 200.0
       ])
     }
@@ -64,6 +76,7 @@ export default {
   mounted() {
     /* eslint no-new: */
     this.initViewer()
+    // this.initEarthViewer()
     // new Viewer('cesiumContainer')
     // 测量距离
     // MeasureTool.measureLineSpace(viewer, null)
@@ -110,7 +123,7 @@ export default {
       })
       var terrainProviderGoogle = Cesium.createWorldTerrain({
         requestVertexNormals: true,
-        requestWaterMask: true
+        requestWaterMask: false
       })
       // 百度
       var baiduImageryProvider = new BaiduImageryProvider({
@@ -127,8 +140,8 @@ export default {
       viewer = new Cesium.Viewer('cesiumContainer', {
         terrainExaggeration: 0.95,
         imageryProvider: imageryProvider,
-        //   imageryProvider: baiduImageryProvider,
-        //   terrainProvider: terrainProvider,
+        // imageryProvider: baiduImageryProvider,
+        // terrainProvider: terrainProvider,
         // terrainProvider: terrainProviderMars,
         terrainProvider: terrainProviderGoogle,
         baseLayerPicker: false,
@@ -229,6 +242,139 @@ export default {
         }
       })
       viewer._cesiumWidget._creditContainer.style.display = 'none'
+
+      var ArcGisMap = new Cesium.UrlTemplateImageryProvider({
+        // 调用深蓝夜色影像服务
+        url: 'https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer/tile/{z}/{y}/{x}'
+      })
+
+      // sliderBar
+      // var layersL = viewer.imageryLayers
+      // var googleLayer = layersL.addImageryProvider(ArcGisMap)
+      // googleLayer.splitDirection = Cesium.ImagerySplitDirection.LEFT// 设置图层在左侧
+
+      // var slider = document.getElementById('slider')
+      // viewer.scene.imagerySplitPosition = (slider.offsetLeft) / slider.parentElement.offsetWidth
+      // global.constants.dragStartX = 0
+      // document.getElementById('slider').addEventListener('mousedown', this.mouseDown, false)
+      // window.addEventListener('mouseup', this.mouseUp, false)
+
+      // // 分屏联动
+      // // 用于联动的viewer
+      // viewerEye = new Cesium.Viewer('cesiumContainerR', {
+      //   imageryProvider: ArcGisMap,
+
+      //   creditContainer: 'creditContainerR',
+
+      //   scene3DOnly: true,
+
+      //   baseLayerPicker: false,
+
+      //   infoBox: false,
+
+      //   selectionIndicator: false,
+
+      //   geocoder: false, // 是否显示地名查找控件
+
+      //   navigationHelpButton: false, // 是否显示帮助信息控件
+
+      //   homeButton: false,
+
+      //   timeline: false,
+
+      //   animation: false
+      // })
+      // viewerEye._cesiumWidget._creditContainer.style.display = 'none'
+      // // // 第一种
+      // // var control = viewerEye.scene.screenSpaceCameraController
+
+      // // control.enableRotate = false
+
+      // // control.enableTranslate = false
+
+      // // control.enableZoom = false
+
+      // // control.enableTilt = false
+
+      // // control.enableLook = false
+
+      // // var syncViewer = function () {
+      // //   viewerEye.camera.flyTo({
+      // //     destination: viewer.camera.position,
+
+      // //     orientation: {
+      // //       heading: viewer.camera.heading,
+
+      // //       pitch: viewer.camera.pitch,
+
+      // //       roll: viewer.camera.roll
+      // //     },
+
+      // //     duration: 0.0
+      // //   })
+      // // }
+
+      // // viewer.camera.changed.addEventListener(syncViewer)
+
+      // // viewer.scene.preRender.addEventListener(syncViewer)
+
+      // // 第二种
+      // var sceneL = viewer.scene
+      // var sceneR = viewerEye.scene
+
+      // var handlerL = new Cesium.ScreenSpaceEventHandler(sceneL.canvas)
+      // var ellipsoidL = sceneL.globe.ellipsoid
+      // var handlerR = new Cesium.ScreenSpaceEventHandler(sceneR.canvas)
+      // var ellipsoidR = sceneR.globe.ellipsoid
+
+      // var isLeftTrigger = false
+      // var isRightTrigger = false
+
+      // handlerL.setInputAction(function (movement) {
+      //   isLeftTrigger = true
+      //   isRightTrigger = false
+      // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+
+      // handlerR.setInputAction(function (movement) {
+      //   isLeftTrigger = false
+      //   isRightTrigger = true
+      // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+
+      // var syncViewerL = function () {
+      //   if (isLeftTrigger) {
+      //     viewerEye.camera.flyTo({
+      //       destination: viewer.camera.position,
+      //       orientation: {
+      //         heading: viewer.camera.heading,
+      //         pitch: viewer.camera.pitch,
+      //         roll: viewer.camera.roll
+      //       },
+      //       duration: 0.0
+      //     })
+      //   }
+      // }
+
+      // viewer.camera.changed.addEventListener(syncViewerL)
+      // viewer.scene.preRender.addEventListener(syncViewerL)
+
+      // var syncViewerR = function () {
+      //   if (isRightTrigger) {
+      //     viewer.camera.flyTo({
+      //       destination: viewerEye.camera.position,
+      //       orientation: {
+      //         heading: viewerEye.camera.heading,
+      //         pitch: viewerEye.camera.pitch,
+      //         roll: viewerEye.camera.roll
+      //       },
+      //       duration: 0.0
+      //     })
+      //   }
+      // }
+
+      // viewer.camera.changed.addEventListener(syncViewerR)
+      // viewer.scene.preRender.addEventListener(syncViewerR)
+      // 分屏至此结束
+
       viewer.scene.globe.showGroundAtmosphere = false
       // viewer.scene.globe.baseColor = Color.BLACK
       // viewer.scene.globe.baseColor = new Cesium.Color(1, 1, 1, 0) // 修改地球颜色
@@ -253,9 +399,9 @@ export default {
           // roll:0.0
         }
       })
-      viewer.scene.globe.depthTestAgainstTerrain = true
       // 显示帧率
       viewer.scene.debugShowFramesPerSecond = true
+      viewer.scene.globe.depthTestAgainstTerrain = false
 
       // 添加3d tiles调试面板
       viewer.extend(Cesium.viewerCesium3DTilesInspectorMixin)
@@ -267,12 +413,13 @@ export default {
       window.cesiumViewer = viewer
       this.cesiumViewer = viewer
       scene = viewer.scene
+
       // // 加载100000个模型
       // this.addGlbCollection()
       // 加载大雁塔倾斜摄影
       this.set3Dtitle3()
       // 添加白膜
-      this.BAIMOEdit()
+      // this.BAIMOEdit()
       // 添加等高线
       // this.setContourRef()
       // this.setContour()
@@ -283,8 +430,30 @@ export default {
 
       // 开启两点间可视域分析
       // this.visibilityTwoPoints(viewer)
-
+      // viewer.flyTo(tilesetBaimo)
+      // viewer.flyTo(tileset1)
       viewer.camera.moveEnd.addEventListener(this.getCurrentExtent)
+    },
+    mouseUp() {
+      window.removeEventListener('mousemove', this.sliderMove, true)
+    },
+    mouseDown(e) {
+      var slider = document.getElementById('slider')
+      global.constants.dragStartX = e.clientX - slider.offsetLeft
+      window.addEventListener('mousemove', this.sliderMove, true)
+      console.log(viewer.scene.mode)
+    },
+    sliderMove(e) {
+      var slider = document.getElementById('slider')
+      var splitPosition = (e.clientX - global.constants.dragStartX) / slider.parentElement.offsetWidth
+      slider.style.left = 100.0 * splitPosition + '%'
+      viewer.scene.imagerySplitPosition = splitPosition
+    },
+    initEarthViewer() {
+      this.Earth = new CV.Earth('cesiumContainer', {
+        imageryProvider: CV.TAG.BASELAYER.BAIDUIMAGERY(),
+        skyBox: CV.TAG.SKYBOX.customStyle()
+      })
     },
     setContourRef() {
       this.$refs.contourLine.updateMaterial(viewer)
@@ -331,11 +500,46 @@ export default {
       updateMaterial(viewer)
     },
     // 加速器园区
-    set3Dtitle3 () {
+    set3Dtitle3() {
+      const customShader = new Cesium.CustomShader({
+        uniforms: {
+          // 判断是否开启压平
+          v_if: {
+            type: Cesium.UniformType.BOOL,
+            value: false
+          },
+          // 压平值
+          v_z: {
+            type: Cesium.UniformType.FLOAT,
+            value: 0.0
+          }
+        },
+        varyings: {
+          // 压平区域
+          v_area: Cesium.VaryingType.VEC3
+        },
+        // 局部压平通过vsInput.attributes.positionMC.x<10.0 &&vsInput.attributes.positionMC.y<10.0实现（模型内部坐标筛选），可传入varyings使用
+        vertexShaderText: `
+				 void vertexMain(VertexInput vsInput, inout czm_modelVertexOutput vsOutput) {
+		 	if(v_if&& vsInput.attributes.positionMC.x<10.0 &&vsInput.attributes.positionMC.y<10.0){
+		 		vsOutput.positionMC = vec3(vsInput.attributes.positionMC.x, vsInput.attributes.positionMC.y, v_z);
+		 	}else{
+		 		vsOutput.positionMC = vec3(vsInput.attributes.positionMC.x, vsInput.attributes.positionMC.y, vsInput.attributes.positionMC.z);
+		 	}
+		 }`,
+
+        fragmentShaderText: `
+		 void fragmentMain(FragmentInput fsInput, inout czm_modelMaterial material) {
+			
+		  }`
+      })
       const translation = Cesium.Cartesian3.fromArray([0, 0, 0])
       const m = Cesium.Matrix4.fromTranslation(translation)
       const tilesetJson = {
         url: DAYANTA3DTILES,
+        minimumPixelSize: 128,
+        customShader: customShader,
+        enableModelExperimental: true,
         modelMatrix: m,
         // show: true, // 是否显示图块集(默认true)
         skipLevelOfDetail: true, // --- 优化选项。确定是否应在遍历期间应用详细级别跳过(默认false)
@@ -378,13 +582,30 @@ export default {
       // 非异步加载
       // viewer.scene.primitives.add(tileset)
       // 异步加载
-      tileset1.readyPromise.then(function (tileset) {
-        viewer.scene.primitives.add(tileset1, 1)
-      }).otherwise(function (error) {
-        console.log(error)
-      })
+      tileset1.readyPromise
+        .then(function (tileset) {
+          viewer.scene.primitives.add(tileset1, 1)
+        })
+        // tileset1.readyPromise.then(function (tileset) {
+        //   var boundingSphere = tileset.boundingSphere
+        //   var cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center)// 获取到倾斜数据中心点的经纬度坐标（弧度）
+        //   var surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0)// 倾斜数据中心点的笛卡尔坐标
+        //   var positions = [Cesium.Cartographic.fromDegrees(cartographic.longitude, cartographic.latitude)]
+        //   var promise = Cesium.sampleTerrainMostDetailed(viewer.scene.terrainProvider, positions)// 其中terrainProvider是当前场景使用的高程Provider
+        //   Cesium.when(promise, function(updatedPositions) {
+        //     var terrainHeight = updatedPositions[0].height// 高程
+        //     var offset = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, terrainHeight)// 带高程的新笛卡尔坐标
+        //     var translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3())// 做差得到变换矩阵
+        //     tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)
+        //   })
+        // })
+        .catch(function (error) {
+          console.log(error)
+        })
 
-      // viewer.flyTo(tileset1)
+      viewer.flyTo(tileset1)
+      // viewerEye.flyTo(tileset1)
+      // console.log('tileset1: ', tileset1)
       tileset1.allTilesLoaded.addEventListener(function () {
         console.log('模型已经全部加载完成')
       })
@@ -401,19 +622,21 @@ export default {
       }
       const height = 430
       tilesetBaimo = new Cesium.Cesium3DTileset(tilesetJson)
-      tilesetBaimo.readyPromise.then(function (tileset) {
-        viewer.scene.primitives.add(tileset, 1)
-        // 白膜高度抬升
-        var boundingSphere = tileset.boundingSphere
-        var cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center)
-        var surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0)
-        var offset = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, height)
-        const translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3())
-        tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)
-      }).otherwise(function (error) {
-        console.log(error)
-      })
-      tilesetBaimo.tileVisible.addEventListener(function(tile) {
+      tilesetBaimo.readyPromise
+        .then(function (tileset) {
+          viewer.scene.primitives.add(tileset, 1)
+          // 白膜高度抬升
+          var boundingSphere = tileset.boundingSphere
+          var cartographic = Cesium.Cartographic.fromCartesian(boundingSphere.center)
+          var surface = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, 0.0)
+          var offset = Cesium.Cartesian3.fromRadians(cartographic.longitude, cartographic.latitude, height)
+          const translation = Cesium.Cartesian3.subtract(offset, surface, new Cesium.Cartesian3())
+          tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation)
+        })
+        .otherwise(function (error) {
+          console.log(error)
+        })
+      tilesetBaimo.tileVisible.addEventListener(function (tile) {
         const content = tile.content
         const featuresLength = content.featuresLength
         let feature
@@ -424,7 +647,7 @@ export default {
           // getOwnPropertyNames:返回指定对象的所有自身属性的属性名组成的数组
           // forEach：对数组里的所有元素都执行一遍
           // Object.keys：返回
-          Object.getOwnPropertyNames(_model._sourcePrograms).forEach(function(j) {
+          Object.getOwnPropertyNames(_model._sourcePrograms).forEach(function (j) {
             const _modelSourceP = _model._sourcePrograms[0]
             _model._rendererResources.sourceShaders[_modelSourceP.fragmentShader] = `
      varying vec3 v_positionEC;
@@ -453,23 +676,7 @@ export default {
     },
     // 立体向上泛光效果
     wllUp() {
-      var positions = Cesium.Cartesian3.fromDegreesArrayHeights([
-        121.0,
-        31.25,
-        200000.0,
-        120.78,
-        31.25,
-        200000.0,
-        120.78,
-        31.0,
-        200000.0,
-        121.0,
-        31.0,
-        200000.0,
-        121.0,
-        31.25,
-        200000.0
-      ])
+      var positions = Cesium.Cartesian3.fromDegreesArrayHeights([121.0, 31.25, 200000.0, 120.78, 31.25, 200000.0, 120.78, 31.0, 200000.0, 121.0, 31.0, 200000.0, 121.0, 31.25, 200000.0])
       let num = 20
       let alp = 1
       const speed = 0.006
@@ -486,7 +693,7 @@ export default {
           material: new WallDiffuseMaterialProperty({
             // color: new Cesium.Color(1.0, 1.0, 0.0, 1.0)
             color: new Cesium.CallbackProperty(function () {
-              if ((num % 2) === 0) {
+              if (num % 2 === 0) {
                 alp -= speed
               } else {
                 alp += speed
@@ -520,7 +727,7 @@ export default {
           //     })
         }
       })
-      viewer.zoomTo(viewer.entities)
+      // viewer.zoomTo(viewer.entities)
     },
     wallCustom() {
       const material = new WallLinkCustomMaterialProperty({
@@ -590,12 +797,12 @@ export default {
           material: material
         }
       })
-      viewer.zoomTo(viewer.entities)
+      // viewer.zoomTo(viewer.entities)
     },
     /**
-   * 初始化上下文
-   * @param {viewer} viewer 视图
-   */
+     * 初始化上下文
+     * @param {viewer} viewer 视图
+     */
     visibilityTwoPoints(viewer) {
       const pointVisible = new Visibility(viewer)
     },
@@ -703,7 +910,7 @@ export default {
         var pitch = Math.random()
         var roll = Math.random()
         // var scale = ((Math.random() + 1.0) / 4.0) * 100
-        var scale = 10000
+        var scale = 200000
         var modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(position, new Cesium.HeadingPitchRoll(heading, pitch, roll))
 
         Cesium.Matrix4.multiplyByUniformScale(modelMatrix, scale, modelMatrix)
@@ -717,14 +924,17 @@ export default {
     },
     /* 加载gltf或glb格式模型 */
     addGlbCollection() {
-      for (let i = 0; i < 100000; i++) {
+      for (let i = 0; i < 1; i++) {
         var longitude = 108.841552734374 + Math.random() * (150 - 124.25) // [124.25,150)
         var latitude = 27.8779283336792 + Math.random() * (60 - 28)
         var height = 100 + Math.random() * (5000 - 100)
+        // var longitude = 108.05914487576968 // [124.25,150)
+        // var latitude = 27.67106595138396
+        // var height = 50
         var ccord = { longitude, latitude, height }
         this.coordiatesArr.push(ccord)
       }
-      console.log(this.coordiatesArr)
+      // console.log(this.coordiatesArr)
       var modelInstances = this.getModelPostInstances(this.coordiatesArr)
       console.log(modelInstances)
       var instanceCollection = scene.primitives.add(
@@ -734,18 +944,71 @@ export default {
           instances: modelInstances
         })
       )
+      console.log(instanceCollection)
+      // // 获取模型包围盒
+      // var boundingSphere = instanceCollection._boundingSphere
+      // var center = boundingSphere.center
+      // var radius = boundingSphere.radius
+
+      // // 计算模型包围盒的四个角点坐标
+      // var positions = []
+      // positions.push(center.x - radius, center.y - radius, center.z)
+      // positions.push(center.x + radius, center.y - radius, center.z)
+      // positions.push(center.x + radius, center.y + radius, center.z)
+      // positions.push(center.x - radius, center.y + radius, center.z)
+
+      // // 将四个角点坐标转换为经纬度高程坐标
+      // var cartographicPositions = Cesium.Ellipsoid.WGS84.cartesianArrayToCartographicArray(positions)
+
+      // // 采样地形高程数据
+      // Cesium.when(Cesium.sampleTerrainMostDetailed(scene.terrainProvider, cartographicPositions), function (updatedPositions) {
+      //   // 更新模型矩阵，使其贴合地形
+      //   var height = updatedPositions[0].height
+      //   var translation = Cesium.Cartesian3.fromRadians(updatedPositions[0].longitude,
+      //     updatedPositions[0].latitude, height)
+      //   var rotationX = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(90)))
+      //   var rotationY = Cesium.Matrix4.fromRotationTranslation(Cesium.Matrix3.fromRotationX(Cesium.Math.toRadians(-90)))
+      //   var m = Cesium.Matrix4.multiply(rotationX, rotationY, new Cesium.Matrix4())
+      //   instanceCollection.modelMatrix = Cesium.Matrix4.multiplyByTranslation(m, translation, new Cesium.Matrix4())
+      // })
     }
   }
 }
 </script>
 
 <style scoped>
+/* @bgc:#000; */
 #cesiumContainer {
-  width: 100%;
+  background: #000;
+  width: 70%;
   height: 100%;
+  overflow: hidden;
+  position: absolute;
 }
-::v-deep(.cesium-viewer-cesium3DTilesInspectorContainer){
-      right: 400px;
-      top: 200px;
+.cesiumContainerRight {
+    width: 30%;
+    height: 69%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
 }
+::v-deep(.cesium-viewer-cesium3DTilesInspectorContainer) {
+  right: 400px;
+  top: 200px;
+}
+.slider {
+    position: absolute;
+    left: 50%;
+    top: 0px;
+    background-color: #D3D3D3;
+    width: 4px;
+    height: 100%;
+    z-index: 9999;
+}
+.slider:hover {
+    cursor: ew-resize;
+}
+#creditContainer{
+        display: none;
+    }
 </style>

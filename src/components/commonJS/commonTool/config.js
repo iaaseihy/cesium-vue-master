@@ -3,8 +3,8 @@
  * @version:
  * @Author: sueRimn
  * @Date: 2019-09-19 09:10:57
- * @LastEditors: iaaseihy 774249302@qq.com
- * @LastEditTime: 2023-02-10 11:34:56
+ * @LastEditors: CaoChaoqiang
+ * @LastEditTime: 2023-03-15 16:24:39
  */
 //
 /**
@@ -13,14 +13,17 @@
 import * as Cesium from 'cesium'
 import SceneTree from './sceneTree.js'
 import Handler from './handler.js'
-import MouseManager from './mouseManager.js'; let lensFlare = null; let latlonMsg = null
+import MouseManager from './mouseManager.js'
+import Vue from './vue.min.js'
+let lensFlare = null; let latlonMsg = null
 const lon = 117.191166; const lat = 34.289749; const zoom = 15000000
 export default class CONFIG {
   constructor() {}
     // 数据目录
     static DATADIR = '/map/3d/data';
     // code目录
-    static CODEDIR = '/map/3d/code';
+    // static CODEDIR = '/map/3d/code';
+    static CODEDIR = './commonTool';
     // cesiumApp存放目录
     static APPDIR = '/map/3d/static/Cesium1.62';
     // 静态资源 图像视频文件目录

@@ -3,8 +3,8 @@
  * @version: 1.0
  * @Author: zhangti
  * @Date: 2019-09-20 09:36:14
- * @LastEditors: iaaseihy 774249302@qq.com
- * @LastEditTime: 2023-02-10 11:30:28
+ * @LastEditors: CaoChaoqiang
+ * @LastEditTime: 2023-03-15 16:31:58
  */
 /**
  * 拾取坐标
@@ -12,7 +12,7 @@
  * 基础类
  */
 // 定义一些常量
-import * as Cesium from 'cesium'
+import Cesium from '../../../../public/static/Cesium1.62/Build/CesiumUnminified/Cesium'
 var x_PI = 3.14159265358979324 * 3000.0 / 180.0
 var PI = 3.1415926535897932384626
 var a = 6378245.0

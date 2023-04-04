@@ -4,7 +4,7 @@
  * @Author: zhangti
  * @Date: 2019-09-19 09:10:57
  * @LastEditors: iaaseihy 774249302@qq.com
- * @LastEditTime: 2023-02-10 11:35:53
+ * @LastEditTime: 2023-02-10 16:40:35
  */
 /**
  * @file sceneTree
@@ -13,6 +13,7 @@
  * 在3d地球上挂载场景
  *
  * */
+import * as Cesium from 'cesium'
 import config from './config.js'
 import Tools from './cvTool.js'
 import Scene from './scene.js'

@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: v1.0
+ * @Author: CaoChaoqiang
+ * @Date: 2022-03-07 16:08:21
+ * @LastEditors: CaoChaoqiang
+ * @LastEditTime: 2023-04-04 11:44:31
+-->
 
 <p align="center">
 <img src="https://github.com/CesiumGS/cesium/wiki/logos/Cesium_Logo_Color.jpg" width="50%" />
@@ -14,7 +22,7 @@
 ```
 npm install / cnpm install / yarn install
 ```
-
+在node_modules/cesium/Build/Cesium/Widgets目录中添加bucket.css。文件位于src/css/bucket.css中
 ### 编译并热部署的开发环境 (Compiles and hot-reloads for development)
 ```
 npm run serve / cnpm run serve / yarn serve

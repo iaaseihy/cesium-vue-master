@@ -3,8 +3,8 @@
  * @version: 1.0
  * @Author: zhangti
  * @Date: 2019-09-20 09:32:21
- * @LastEditors: iaaseihy 774249302@qq.com
- * @LastEditTime: 2023-02-10 11:32:56
+ * @LastEditors: CaoChaoqiang
+ * @LastEditTime: 2023-03-15 16:32:48
  */
 /**
  * entitys 实体类
@@ -12,7 +12,8 @@
  * 创建
  * 销毁
  */
-import * as Cesium from 'cesium'
+// import * as Cesium from 'cesium'
+import Cesium from '../../../../public/static/Cesium1.62/Build/CesiumUnminified/Cesium'
 export default class Entitys {
   constructor(core) {
     /**

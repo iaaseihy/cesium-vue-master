@@ -4,16 +4,17 @@
  */
 /***
  * 示例
- * 
+ *
  let roaming=new Roaming(this.viewer,{
     'modeluri':'model3D/CesiumAir/CesiumAir.gltf',
     'time':360,
     'Lines':Lines,
     'isPathShow':true
   })
-  
- * 
+
+ *
  */
+import * as Cesium from 'cesium'
 export default class Roaming {
   /**
      *Creates an instance of Roaming.
@@ -38,6 +39,7 @@ export default class Roaming {
     this.property = this.ComputeRoamingLineProperty(options.Lines, options.time, options.start)
     this.InitRoaming(this.property, this.start, this.stop, this.isPathShow)
   }
+
   /**
      *
      *
@@ -48,13 +50,13 @@ export default class Roaming {
      * @memberof Roaming
      */
   ComputeRoamingLineProperty (Lines, time) {
-    let property = new Cesium.SampledPositionProperty()
-    let lineLength = Lines.length
-    let tempTime = time - time % lineLength
-    let increment = tempTime / lineLength
-    let start = Cesium.JulianDate.now()
+    const property = new Cesium.SampledPositionProperty()
+    const lineLength = Lines.length
+    const tempTime = time - time % lineLength
+    const increment = tempTime / lineLength
+    const start = Cesium.JulianDate.now()
     this.start = start
-    let stop = Cesium.JulianDate.addSeconds(start, tempTime, new Cesium.JulianDate())
+    const stop = Cesium.JulianDate.addSeconds(start, tempTime, new Cesium.JulianDate())
     this.stop = stop
     this.viewer.clock.startTime = start.clone()
     this.viewer.clock.stopTime = stop.clone()
@@ -63,12 +65,13 @@ export default class Roaming {
     this.viewer.clock.multiplier = 10
 
     for (let i = 0; i < lineLength; i++) {
-      let time = Cesium.JulianDate.addSeconds(start, i * increment, new Cesium.JulianDate())
-      let position = Lines[i]
+      const time = Cesium.JulianDate.addSeconds(start, i * increment, new Cesium.JulianDate())
+      const position = Lines[i]
       property.addSample(time, position)
     }
     return property
   }
+
   /**
      *
      *
@@ -121,12 +124,13 @@ export default class Roaming {
         show: isPathShow
       }
     })
-    this.entity.position.setInterpolationOptions({// 点插值
+    this.entity.position.setInterpolationOptions({ // 点插值
       interpolationDegree: 5,
       interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
     })
     this.viewer.trackedEntity = this.entity
   }
+
   /**
    *漫游的暂停和继续
    *
@@ -136,6 +140,7 @@ export default class Roaming {
   PauseOrContinue (state) {
     this.viewer.clock.shouldAnimate = state
   }
+
   /**
    *改变飞行的速度
    *
@@ -145,6 +150,7 @@ export default class Roaming {
   ChangeRoamingSpeed (value) {
     this.viewer.clock.multiplier = value
   }
+
   /**
    *
    *取消漫游
@@ -156,4 +162,3 @@ export default class Roaming {
     }
   }
 }
-

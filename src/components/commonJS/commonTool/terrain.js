@@ -1,71 +1,71 @@
 /*
- * @Descripttion: 
+ * @Descripttion:
  * @version: 1.0
  * @Author: zhangti
  * @Date: 2019-09-19 17:44:53
- * @LastEditors: sueRimn
- * @LastEditTime: 2019-09-29 16:51:55
+ * @LastEditors: iaaseihy 774249302@qq.com
+ * @LastEditTime: 2023-02-10 16:25:53
  */
 /**
  * 生成地形实体类
  */
- export default class Terrain{
-
-    constructor(core){
-        /**
+import * as Cesium from 'cesium'
+export default class Terrain {
+  constructor(core) {
+    /**
          * terrain 实体
          */
-        this.TerrainLayer = core.terrainProvider;
+    this.TerrainLayer = core.terrainProvider
 
-        this.terrainObj = null;
-    }
-    /**
+    this.terrainObj = null
+  }
+  /**
      * build 构建
-     * @param {*} Terrain 
+     * @param {*} Terrain
      */
 
-    build(node){
-        
-        switch(node.type){//拓展接口
-            case 'create': this.terrainObj = this.createTerrain(node.child);break;
-            default: this.terrainObj = this.addTerrainLayer(node.terrain); break;
-        }
-
-        return  this.terrainObj;
+  build(node) {
+    switch (node.type) { // 拓展接口
+      case 'create': this.terrainObj = this.createTerrain(node.child); break
+      default: this.terrainObj = this.addTerrainLayer(node.terrain); break
     }
-    /**
+
+    return this.terrainObj
+  }
+
+  /**
      * 创建 Terrain
      * 需要后面拓展
      * 创建接口
-     */  
-    createTerrain(child){
-        for(let c in child){
-            Terrain = {
-                url:child[c].url
-            } 
-        }
+     */
+  createTerrain(child) {
+    for (const c in child) {
+      Terrain = {
+        url: child[c].url
+      }
     }
-    /**
+  }
+
+  /**
      * 添加Terrain
      */
-    addTerrainLayer(terrain){
-        console.log(terrain);
-        this.TerrainLayer = terrain;
-    }
-    /**
+  addTerrainLayer(terrain) {
+    console.log(terrain)
+    this.TerrainLayer = terrain
+  }
+
+  /**
      * remove Terrain
      */
-    remove(){
-        this.TerrainLayer = new Cesium.EllipsoidTerrainProvider({});
-    }
+  remove() {
+    this.TerrainLayer = new Cesium.EllipsoidTerrainProvider({})
+  }
 
-    /** 
-     * 
+  /**
+     *
      * removeAll Terrain
     */
-    removeAll(){
-        this.TerrainLayer = new Cesium.EllipsoidTerrainProvider({});
-    }
-
-
- }
+  removeAll() {
+    this.TerrainLayer = new Cesium.EllipsoidTerrainProvider({})
+  }
+}
