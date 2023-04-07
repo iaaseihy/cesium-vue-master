@@ -4,7 +4,7 @@
  * @Author: CaoChaoqiang
  * @Date: 2023-03-11 15:57:45
  * @LastEditors: CaoChaoqiang
- * @LastEditTime: 2023-03-29 19:53:52
+ * @LastEditTime: 2023-04-07 09:49:49
  */
 import * as Cesium from 'cesium'
 export default class TerrainClipPlan {
@@ -65,6 +65,7 @@ export default class TerrainClipPlan {
 
       t.push(new Cesium.ClippingPlane(normal, distance))
     }
+    this.viewer.scene.globe.depthTestAgainstTerrain = false
     this.viewer.scene.globe.clippingPlanes = new Cesium.ClippingPlaneCollection({
       planes: t,
       edgeWidth: 1,
@@ -75,7 +76,7 @@ export default class TerrainClipPlan {
 
   clear() {
     // 先还原depthTestAgainstTerrain
-    // this.viewer.scene.globe.depthTestAgainstTerrain = true
+    this.viewer.scene.globe.depthTestAgainstTerrain = true
     this.viewer.scene.globe.clippingPlanes && (this.viewer.scene.globe.clippingPlanes.enabled = !1, this.viewer.scene.globe.clippingPlanes.removeAll(), this.viewer.scene.globe.clippingPlanes.isDestroyed() || this.viewer.scene.globe.clippingPlanes.destroy()), this.viewer.scene.globe.clippingPlanes = void 0, this.bottomSurface && this.viewer.scene.primitives.remove(this.bottomSurface), this.wellWall && this.viewer.scene.primitives.remove(this.wellWall), delete this.bottomSurface, delete this.wellWall, this.viewer.scene.render()
   }
 
@@ -131,12 +132,19 @@ export default class TerrainClipPlan {
   // }
 
   _createWell(e) {
-    // const deferred = Cesium.defer()
+    const deferred = Cesium.defer()
     if (this.viewer.terrainProvider._layers) {
       var t = this
       this._createBottomSurface(e.bottom_pos)
       var i = Cesium.sampleTerrainMostDetailed(this.viewer.terrainProvider, e.lerp_pos)
-      Cesium.when(i, function (i) {
+      // Cesium.when(i, function (i) {
+      //   for (var a = i.length, n = [], r = 0; r < a; r++) {
+      //     var s = Cesium.Cartesian3.fromRadians(i[r].longitude, i[r].latitude, i[r].height)
+      //     n.push(s)
+      //   }
+      //   t._createWellWall(e.bottom_pos, n)
+      // })
+      Promise.resolve(i).then(function (i) {
         for (var a = i.length, n = [], r = 0; r < a; r++) {
           var s = Cesium.Cartesian3.fromRadians(i[r].longitude, i[r].latitude, i[r].height)
           n.push(s)
