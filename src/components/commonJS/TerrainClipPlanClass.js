@@ -4,7 +4,7 @@
  * @Author: CaoChaoqiang
  * @Date: 2023-03-11 15:57:45
  * @LastEditors: CaoChaoqiang
- * @LastEditTime: 2023-04-07 09:49:49
+ * @LastEditTime: 2023-04-07 09:56:46
  */
 import * as Cesium from 'cesium'
 export default class TerrainClipPlan {
@@ -76,7 +76,7 @@ export default class TerrainClipPlan {
 
   clear() {
     // 先还原depthTestAgainstTerrain
-    this.viewer.scene.globe.depthTestAgainstTerrain = true
+    // this.viewer.scene.globe.depthTestAgainstTerrain = true
     this.viewer.scene.globe.clippingPlanes && (this.viewer.scene.globe.clippingPlanes.enabled = !1, this.viewer.scene.globe.clippingPlanes.removeAll(), this.viewer.scene.globe.clippingPlanes.isDestroyed() || this.viewer.scene.globe.clippingPlanes.destroy()), this.viewer.scene.globe.clippingPlanes = void 0, this.bottomSurface && this.viewer.scene.primitives.remove(this.bottomSurface), this.wellWall && this.viewer.scene.primitives.remove(this.wellWall), delete this.bottomSurface, delete this.wellWall, this.viewer.scene.render()
   }
 
